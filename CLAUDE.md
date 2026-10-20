@@ -41,7 +41,10 @@ devem passar no GitHub.
 ## Etapas
 
 1. ✅ Projeto Flutter criado e enviado ao GitHub.
-2. ⏳ CI com GitHub Actions + Dependabot + proteção da `main`.
-3. CD: deploy automático da web (staging) e build do APK.
+2. ✅ CI com GitHub Actions + Dependabot + proteção da `main` (ruleset: só PR,
+   0 aprovações por ser dev solo, check "Análise, testes e build" obrigatório, só squash).
+3. ⏳ CD (`.github/workflows/cd.yml`): a cada merge na `main` gera build web + APK
+   (artefato), espera aprovação manual no environment `github-pages` e publica a web
+   no GitHub Pages: https://ricardofissmer.github.io/bolao-nfl/
 4. Releases: tag SemVer automática e release notes a partir dos commits.
 5. Funcionalidades do bolão (times, jogos, palpites, ranking).
