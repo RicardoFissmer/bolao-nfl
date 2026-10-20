@@ -1,0 +1,49 @@
+# Integração Contínua (CI): roda a cada Pull Request e a cada push na main.
+# Se qualquer passo falhar, o job fica vermelho e o PR não deve ser mesclado.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Se um novo commit chegar no mesmo PR, cancela a execução antiga.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Análise, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.2 # mesma versão da máquina local
+          cache: true
+
+      - name: Instalar dependências
+        run: flutter pub get
+
+      - name: Verificar formatação
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Análise estática (lint)
+        run: flutter analyze
+
+      - name: Testes
+        run: flutter test
+
+      - name: Build web
+        run: flutter build web --release
