@@ -43,8 +43,13 @@ devem passar no GitHub.
 1. ✅ Projeto Flutter criado e enviado ao GitHub.
 2. ✅ CI com GitHub Actions + Dependabot + proteção da `main` (ruleset: só PR,
    0 aprovações por ser dev solo, check "Análise, testes e build" obrigatório, só squash).
-3. ⏳ CD (`.github/workflows/cd.yml`): a cada merge na `main` gera build web + APK
+3. ✅ CD (`.github/workflows/cd.yml`): a cada merge na `main` gera build web + APK
    (artefato), espera aprovação manual no environment `github-pages` e publica a web
    no GitHub Pages: https://ricardofissmer.github.io/bolao-nfl/
-4. Releases: tag SemVer automática e release notes a partir dos commits.
+4. ⏳ Releases com release-please (`.github/workflows/release.yml`,
+   `release-please-config.json`, `.release-please-manifest.json`): mantém um PR de
+   release com versão SemVer + CHANGELOG; ao mesclar, cria a tag e a Release com o APK.
+   O PR de release é aberto pelo GITHUB_TOKEN, que não dispara o CI, então o workflow
+   dispara o CI via `workflow_dispatch` na branch do PR.
+   **Pendente:** depois da release v1.0.0, remover `"release-as": "1.0.0"` do config.
 5. Funcionalidades do bolão (times, jogos, palpites, ranking).
