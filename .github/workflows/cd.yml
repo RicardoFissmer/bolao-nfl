@@ -1,0 +1,91 @@
+# Entrega Contínua (CD): roda a cada merge na main.
+# 1. Gera o build da web e o APK do Android (os "candidatos a release").
+# 2. Espera a aprovação manual do líder (gate de release, configurado no
+#    environment "github-pages" do repositório).
+# 3. Publica a web no GitHub Pages (produção).
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permite rodar manualmente pela aba Actions
+
+# Nunca dois deploys ao mesmo tempo; um novo espera o anterior terminar.
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-web:
+    name: Build web
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.2
+          cache: true
+
+      - name: Build web
+        # O site fica em https://<usuario>.github.io/bolao-nfl/, por isso o base-href.
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/
+
+      - name: Guardar o build para o deploy
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  build-android:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21 # mesma versão da máquina local
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.2
+          cache: true
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Guardar o APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bolao-nfl-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+  deploy-web:
+    name: Deploy web (produção)
+    needs: [build-web, build-android]
+    runs-on: ubuntu-latest
+    # O environment é onde fica a regra de aprovação manual.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
