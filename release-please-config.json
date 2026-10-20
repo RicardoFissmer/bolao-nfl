@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "dart",
+  "include-component-in-tag": false,
+  "changelog-sections": [
+    { "type": "feat", "section": "Novidades" },
+    { "type": "fix", "section": "Correções" },
+    { "type": "perf", "section": "Desempenho" },
+    { "type": "revert", "section": "Reversões" },
+    { "type": "docs", "section": "Documentação" },
+    { "type": "ci", "section": "CI/CD" },
+    { "type": "test", "section": "Testes" },
+    { "type": "refactor", "section": "Refatoração" },
+    { "type": "chore", "section": "Manutenção" }
+  ],
+  "packages": {
+    ".": {
+      "package-name": "bolao_nfl",
+      "changelog-path": "CHANGELOG.md",
+      "release-as": "1.0.0"
+    }
+  }
+}

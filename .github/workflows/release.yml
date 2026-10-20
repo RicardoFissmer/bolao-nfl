@@ -1,0 +1,74 @@
+# Releases automáticas (release-please).
+# A cada merge na main, o robô lê os commits (Conventional Commits) e mantém
+# aberto um "PR de release" com a próxima versão e o CHANGELOG.
+# Quando esse PR é mesclado, ele cria a tag SemVer (a baseline) e a Release no
+# GitHub, e este workflow anexa o APK a ela.
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write # criar tag e release
+  pull-requests: write # abrir/atualizar o PR de release
+  actions: write # disparar o CI no PR de release
+
+jobs:
+  release-please:
+    name: Preparar release
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Rodar o release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # PRs criados pelo robô (GITHUB_TOKEN) não disparam o CI sozinhos, e a
+      # main exige o CI verde. Por isso disparamos o CI manualmente na branch
+      # do PR de release.
+      - name: Rodar o CI no PR de release
+        if: ${{ steps.release.outputs.pr != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+        run: gh workflow run ci.yml --repo "${{ github.repository }}" --ref "$BRANCH"
+
+  attach-apk:
+    name: Anexar APK à release
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.2
+          cache: true
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Enviar APK para a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk "bolao-nfl-$TAG.apk"
+          gh release upload "$TAG" "bolao-nfl-$TAG.apk" --clobber --repo "${{ github.repository }}"
