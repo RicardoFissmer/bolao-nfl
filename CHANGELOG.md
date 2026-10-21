@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/RicardoFissmer/bolao-nfl/compare/v1.0.0...v1.0.1) (2026-10-21)
+
+
+### CI/CD
+
+* corrige workflow de release e permite anexar APK manualmente ([#11](https://github.com/RicardoFissmer/bolao-nfl/issues/11)) ([a301a05](https://github.com/RicardoFissmer/bolao-nfl/commit/a301a0593cb268dd3b6313a65f6fa2543ab15bcf))
+
 ## 1.0.0 (2026-10-20)
 
 
