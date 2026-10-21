@@ -3,20 +3,29 @@
 # aberto um "PR de release" com a próxima versão e o CHANGELOG.
 # Quando esse PR é mesclado, ele cria a tag SemVer (a baseline) e a Release no
 # GitHub, e este workflow anexa o APK a ela.
+#
+# Observação: o CI do PR de release só roda depois que alguém clica em
+# "Approve workflows to run" no próprio PR (trava do GitHub para PRs de robôs).
 name: Release
 
 on:
   push:
     branches: [main]
+  # Permite anexar o APK manualmente a uma release já existente (aba Actions).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release para anexar o APK (ex.: v1.0.0)"
+        required: true
 
 permissions:
-  contents: write # criar tag e release
+  contents: write # criar tag, release e enviar o APK
   pull-requests: write # abrir/atualizar o PR de release
-  actions: write # disparar o CI no PR de release
 
 jobs:
   release-please:
     name: Preparar release
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -29,25 +38,24 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      # PRs criados pelo robô (GITHUB_TOKEN) não disparam o CI sozinhos, e a
-      # main exige o CI verde. Por isso disparamos o CI manualmente na branch
-      # do PR de release.
-      - name: Rodar o CI no PR de release
-        if: ${{ steps.release.outputs.pr != '' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
-        run: gh workflow run ci.yml --repo "${{ github.repository }}" --ref "$BRANCH"
-
   attach-apk:
     name: Anexar APK à release
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    # always(): roda mesmo quando o job anterior foi pulado (execução manual).
+    if: >-
+      ${{ always() && (
+        needs.release-please.outputs.release_created == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      ) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      TAG: ${{ inputs.tag || needs.release-please.outputs.tag_name }}
     steps:
-      - name: Baixar o código
+      - name: Baixar o código da tag
         uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
 
       - name: Instalar Java
         uses: actions/setup-java@v4
@@ -68,7 +76,6 @@ jobs:
       - name: Enviar APK para a release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
           cp build/app/outputs/flutter-apk/app-release.apk "bolao-nfl-$TAG.apk"
           gh release upload "$TAG" "bolao-nfl-$TAG.apk" --clobber --repo "${{ github.repository }}"
