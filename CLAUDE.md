@@ -46,10 +46,10 @@ devem passar no GitHub.
 3. ✅ CD (`.github/workflows/cd.yml`): a cada merge na `main` gera build web + APK
    (artefato), espera aprovação manual no environment `github-pages` e publica a web
    no GitHub Pages: https://ricardofissmer.github.io/bolao-nfl/
-4. ⏳ Releases com release-please (`.github/workflows/release.yml`,
+4. ✅ Releases com release-please (`.github/workflows/release.yml`,
    `release-please-config.json`, `.release-please-manifest.json`): mantém um PR de
    release com versão SemVer + CHANGELOG; ao mesclar, cria a tag e a Release com o APK.
-   O PR de release é aberto pelo GITHUB_TOKEN, que não dispara o CI, então o workflow
-   dispara o CI via `workflow_dispatch` na branch do PR.
-   **Pendente:** depois da release v1.0.0, remover `"release-as": "1.0.0"` do config.
+   Primeira release: v1.0.0. O CI do PR de release (aberto por robô) só roda depois de
+   clicar em "Approve workflows to run" no PR. Para anexar o APK a uma release já
+   existente: aba Actions → Release → Run workflow → informar a tag.
 5. Funcionalidades do bolão (times, jogos, palpites, ranking).

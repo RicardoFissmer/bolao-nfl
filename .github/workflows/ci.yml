@@ -7,7 +7,7 @@ on:
     branches: [main]
   push:
     branches: [main]
-  workflow_dispatch: # usado pelo workflow de release no PR de release
+  workflow_dispatch: # permite rodar o CI manualmente pela aba Actions
 
 # Se um novo commit chegar no mesmo PR, cancela a execução antiga.
 concurrency:
