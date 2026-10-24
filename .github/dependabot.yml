@@ -1,5 +1,6 @@
 # Dependabot: abre PRs automaticamente quando uma biblioteca fica desatualizada
 # ou tem vulnerabilidade conhecida. Cada PR passa pelo CI como qualquer outro.
+# As atualizações são agrupadas: no máximo um PR por semana para cada tipo.
 version: 2
 updates:
   - package-ecosystem: "pub"
@@ -8,6 +9,9 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      pub:
+        patterns: ["*"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -15,3 +19,6 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "ci(deps)"
+    groups:
+      github-actions:
+        patterns: ["*"]

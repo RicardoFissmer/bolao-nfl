@@ -7,11 +7,11 @@
     { "type": "fix", "section": "Correções" },
     { "type": "perf", "section": "Desempenho" },
     { "type": "revert", "section": "Reversões" },
-    { "type": "docs", "section": "Documentação" },
-    { "type": "ci", "section": "CI/CD" },
-    { "type": "test", "section": "Testes" },
-    { "type": "refactor", "section": "Refatoração" },
-    { "type": "chore", "section": "Manutenção" }
+    { "type": "docs", "section": "Documentação", "hidden": true },
+    { "type": "ci", "section": "CI/CD", "hidden": true },
+    { "type": "test", "section": "Testes", "hidden": true },
+    { "type": "refactor", "section": "Refatoração", "hidden": true },
+    { "type": "chore", "section": "Manutenção", "hidden": true }
   ],
   "packages": {
     ".": {

@@ -49,7 +49,9 @@ devem passar no GitHub.
 4. ✅ Releases com release-please (`.github/workflows/release.yml`,
    `release-please-config.json`, `.release-please-manifest.json`): mantém um PR de
    release com versão SemVer + CHANGELOG; ao mesclar, cria a tag e a Release com o APK.
-   Primeira release: v1.0.0. O CI do PR de release (aberto por robô) só roda depois de
+   Primeira release: v1.0.0. Só `feat`, `fix`, `perf` e `revert` geram versão nova
+   (os demais tipos ficam ocultos no changelog, porque não mudam o app). O Dependabot
+   agrupa as atualizações em um PR por semana. O CI do PR de release (aberto por robô) só roda depois de
    clicar em "Approve workflows to run" no PR. Para anexar o APK a uma release já
    existente: aba Actions → Release → Run workflow → informar a tag.
 5. Funcionalidades do bolão (times, jogos, palpites, ranking).
