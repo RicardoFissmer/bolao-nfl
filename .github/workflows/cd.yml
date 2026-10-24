@@ -39,7 +39,7 @@ jobs:
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/
 
       - name: Guardar o build para o deploy
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: build/web
 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Instalar Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21 # mesma versão da máquina local
@@ -68,7 +68,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Guardar o APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bolao-nfl-apk
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -88,4 +88,4 @@ jobs:
     steps:
       - name: Publicar no GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
